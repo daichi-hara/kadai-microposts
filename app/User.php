@@ -92,4 +92,16 @@ class User extends Authenticatable
     {
         return $this->followings()->where('follow_id', $userId)->exists();
     }
+    
+    //タイムラインにフォロワーの投稿を追加させるためのModel
+    public function feed_microposts()
+    {
+        //Array＝配列、フォローしているユーザーのuser_idを配列で取得
+        $follow_user_ids = $this->followings()->pluck('users.id')->toArray();
+        //自分のid(=$this->id)も配列に追加しますよ
+        $follow_user_ids[] = $this->id;
+        //micropostテーブルに含みます（whereIn）
+        //user_idカラムで$follow_user_idsの配列の中にあるユーザーidを含むものすべて取得します（user_idを含むmicropostが取得できる）
+        return Micropost::whereIn('user_id', $follow_user_ids);
+    }
 }
