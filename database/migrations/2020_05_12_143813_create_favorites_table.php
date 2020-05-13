@@ -23,10 +23,10 @@ class CreateFavoritesTable extends Migration
             $table->timestamps();
             
             //外部キー設定
-            $table->foreign('user_id')->reference('id')->on('users')->onDelete('cascade');
-            $table->foreign('micropost_id')->reference('id')->on('microposts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('micropost_id')->references('id')->on('microposts')->onDelete('cascade');
             
-            //user_idとmicroposts_idの組み合わせの重複はダメ。（＝1つのmicroipostを何度もお気に入り登録しないように
+            //user_idとmicroposts_idの組み合わせの重複はダメ。1つのmicroipostを何度もお気に入り登録しないように
             $table->unique(['user_id', 'micropost_id']);
         });
     }
