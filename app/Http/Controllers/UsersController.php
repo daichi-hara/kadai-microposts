@@ -64,4 +64,23 @@ class UsersController extends Controller
 
         return view('users.followers', $data);
     }
+    
+    public function favorites($id)
+    {
+        //お気に入りをしようとしているユーザーをID
+        $user = User::find($id);
+        $favorites = $user->favorites()->paginate(10);
+
+        //保存する情報。中間テーブルの2つのカラム
+        $data = [
+            'user' => $user,
+            'microposts' => $favorites,
+        ];
+
+        //ユーザーが何件お気に入りしたのか＝count($user)
+        $data += $this->counts($user);
+
+        //お気に入りタブから飛ぶとそこに表示するためのデータを(このページに,このデータを)returnしてあげる
+        return view('users.favorites', $data);
+    }
 }

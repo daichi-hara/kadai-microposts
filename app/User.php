@@ -104,4 +104,51 @@ class User extends Authenticatable
         //user_idカラムで$follow_user_idsの配列の中にあるユーザーidを含むものすべて取得します（user_idを含むmicropostが取得できる）
         return Micropost::whereIn('user_id', $follow_user_ids);
     }
+    
+    
+    
+    //課題２の中間テーブルの設定。ユーザーがお気に入りしたmicropostsの一覧を表示するメソッドを定義
+    public function favorites()
+    {   
+        //第一引数に取得したい情報のモデルを、第2引数に中間テーブルを、第3引数に自分のカラム名を、第4引数に中間テーブルに保存されている相手のカラムを入れる
+        return $this->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
+    public function favorite($micropostId)
+    {
+        //お気に入り済みかどうか確認
+        $exist = $this->is_favoriting($micropostId);
+        
+        //お気に入り済みかどうかで条件分岐し、負ならお気に入りする
+        if ($exist) {
+            //お気に入り済みであれば何もしない
+            return false;
+        } else {
+            //お気に入りにしていなければお気に入りにする
+            $this->favorites()->attach($micropostId);
+            return true;
+        }
+    }
+    
+    public function unfavorite($micropostId)
+    {
+        //お気に入り済みか確認
+        $exist = $this->is_favoriting($micropostId);
+        
+        //お気に入り済みかどうかで条件分岐し、正ならお気に入り解除する
+        if ($exist) {
+            //お気に入りしてたら解除（detach）
+            $this->favorites()->detach($micropostId);
+            return true;
+        } else {
+            //お気に入りしてなかったらなんもしない
+            return false;
+        }
+    }
+    
+    //is_favoritingの定義
+    public function is_favoriting($micropostId) 
+    {
+        return $this->favorites()->where('micropost_id', $micropostId)->exists();
+    }
 }
